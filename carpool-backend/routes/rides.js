@@ -5,7 +5,7 @@ const router = express.Router();
 
 // Create a new ride
 router.post('/', authMiddleware, async (req, res) => {
-    const { startLocation, endLocation, date } = req.body;
+    const { startLocation, endLocation, date, carName, carNumber, carColor, carCapacity } = req.body;
 
     // Validate request body
     if (!startLocation || !endLocation || !date) {
@@ -21,6 +21,10 @@ router.post('/', authMiddleware, async (req, res) => {
             startLocation,
             endLocation,
             date, // This now includes time
+            carName,
+            carNumber,
+            carColor,
+            carCapacity,
         });
 
 

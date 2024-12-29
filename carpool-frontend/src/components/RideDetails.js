@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import api from '../api'; // Make sure this points to your API configuration
 
 const RideDetails = () => {
-    const { id } = useParams(); // Get the ride ID from the URL
+    const { id } = useParams();
     const [ride, setRide] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -88,6 +88,10 @@ const RideDetails = () => {
             <p><strong>Date:</strong> {new Date(ride.date).toLocaleString()}</p>
             <p><strong>Passengers:</strong> {ride.passengers.length > 0 ? ride.passengers : 'No passengers'}</p>
             <button onClick={handleConfirmRide}>Confirm Ride</button>
+            <p><strong>Car Name:</strong> {ride.carName}</p>
+            <p><strong>Car Number:</strong> {ride.carNumber}</p>
+            <p><strong>Car Color:</strong> {ride.carColor}</p>
+            <p><strong>Car Type:</strong> {ride.carCapacity}</p>
             {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
         </div>
     );

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import api from '../api'; // Make sure this points to your API configuration
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../api';
+import LeafletMap from './Map/LeafletMap.js';
+import { checkRouteMatch } from './Map/RideServices.js';
 
 const Profile = () => {
     const [user, setUser] = useState(null);
@@ -8,9 +10,17 @@ const Profile = () => {
     const [startLocation, setStartLocation] = useState('');
     const [endLocation, setEndLocation] = useState('');
     const [date, setDate] = useState('');
-    const [time, setTime] = useState(''); // New state for time
+    const [time, setTime] = useState('');
+    const [carName, setCarName] = useState('');
+    const [carNumber, setCarNumber] = useState('');
+    const [carColor, setCarColor] = useState('');
+    const [carCapacity, setCarCapacity] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+
+    const [route, setRoute] = useState(null);
+
+    const navigate = useNavigate();
 
     // Fetch user profile and rides
     const fetchProfileAndRides = async () => {
@@ -48,6 +58,10 @@ const Profile = () => {
             startLocation,
             endLocation,
             date: combinedDateTime, // Send combined Date object
+            carName,
+            carNumber,
+            carColor,
+            carCapacity,
         };
 
         try {
@@ -62,6 +76,10 @@ const Profile = () => {
             setEndLocation('');
             setDate('');
             setTime('');
+            setCarName('');
+            setCarNumber('');
+            setCarColor('');
+            setCarCapacity('');
             fetchProfileAndRides();
         } catch (error) {
             setErrorMessage('Error creating ride: ' + error.response?.data?.message || error.message);
@@ -69,10 +87,25 @@ const Profile = () => {
         }
     };
 
+    const handleLogout = async () => {
+        try {
+            await api.post('/auth/logout', {}, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
+            localStorage.removeItem('token'); // Remove the token from local storage
+            navigate('/');
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
+    };
+
 
     return (
         <div>
             <h2>Welcome, {user ? user.username : 'User  '}</h2>
+            <button onClick={handleLogout}>Logout</button>
             <h3>Create a New Ride</h3>
             <form onSubmit={handleCreateRide}>
                 <input
@@ -101,6 +134,37 @@ const Profile = () => {
                     onChange={(e) => setTime(e.target.value)}
                     required
                 />
+                <input
+                    type="text"
+                    value={carName}
+                    onChange={(e) => setCarName(e.target.value)}
+                    placeholder="Car Name"
+                    required
+                />
+                <input
+                    type="text"
+                    value={carNumber}
+                    onChange={(e) => setCarNumber(e.target.value)}
+                    placeholder="Car Number"
+                    required
+                />
+                <input
+                    type="text"
+                    value={carColor}
+                    onChange={(e) => setCarColor(e.target.value)}
+                    placeholder="Car Color"
+                />
+                <select
+                    id="carType"
+                    value={carCapacity}
+                    onChange={(e) => setCarCapacity(e.target.value)}
+                    required
+                >
+                    <option value="" disabled>Select Car Type</option>
+                    <option value="hatchback">Hatchback</option>
+                    <option value="sedan">Sedan</option>
+                    <option value="SUV">SUV</option>
+                </select>
                 <button type="submit">Create Ride</button>
             </form>
             {successMessage && <p>{successMessage}</p>}

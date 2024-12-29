@@ -7,6 +7,7 @@ const Auth = () => {
     const passwordRef = useRef();
     const emailRef = useRef();
     const mobileRef = useRef(); // New ref for mobile number
+    const genderRef = useRef(); // New ref for mobile number
     const [isLogin, setIsLogin] = useState(true);
     const navigate = useNavigate(); // Initialize useNavigate
 
@@ -19,13 +20,23 @@ const Auth = () => {
                 username: usernameRef.current.value,
                 password: passwordRef.current.value,
                 email: emailRef.current.value,
-                mobile: mobileRef.current.value
+                mobile: mobileRef.current.value,
+                gender: genderRef.current.value,
             };
 
         try {
+
             const response = await api.post(endpoint, data);
-            localStorage.setItem('token', response.data.token); // Store the token
-            navigate('/profile'); // Redirect to the profile page after successful login/registration
+            if (isLogin) {
+                localStorage.setItem('token', response.data.token); // Store the token
+                navigate('/profile');
+            } else {
+                alert('Registration successful! Please Login.');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 5000);
+            }
+
         } catch (error) {
             alert('Error: ' + (error.response?.data?.message || 'Something went wrong'));
         }
@@ -38,20 +49,20 @@ const Auth = () => {
 
                 <input
                     type="text"
-                    ref={usernameRef} // Use ref for username input
+                    ref={usernameRef}
                     placeholder="Username"
                     required
                 />
                 <input
                     type="password"
-                    ref={passwordRef} // Use ref for password input
+                    ref={passwordRef}
                     placeholder="Password"
                     required
                 />
                 {!isLogin && (
                     <input
                         type="email"
-                        ref={emailRef} // Use ref for email input
+                        ref={emailRef}
                         placeholder="Email"
                         required
                     />
@@ -59,11 +70,20 @@ const Auth = () => {
                 {!isLogin && (
                     <input
                         type="text"
-                        ref={mobileRef} // Use ref for mobile input
+                        ref={mobileRef}
                         placeholder="Mobile Number"
                         required
                     />
                 )}
+                {!isLogin && (
+                    <input
+                        type="text"
+                        ref={genderRef}
+                        placeholder="Gender"
+                        required
+                    />
+                )}
+
                 <button type="submit">{isLogin ? 'Login' : 'Register'}</button>
                 <button type="button" onClick={() => setIsLogin(!isLogin)}>
                     Switch to {isLogin ? 'Register' : 'Login'}

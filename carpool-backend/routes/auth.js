@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Registration route
 router.post('/register', async (req, res) => {
-    const { username, password, email, mobile } = req.body;
+    const { username, password, email, mobile, gender } = req.body;
 
     try {
         // Check if the user already exists
@@ -25,6 +25,7 @@ router.post('/register', async (req, res) => {
             password: hashedPassword,
             email,
             mobile,
+            gender,
         });
 
         await newUser.save();
@@ -72,6 +73,11 @@ router.get('/profile', authMiddleware, async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }
+});
+
+//logout
+router.post('/logout', (req, res) => {
+    res.status(200).json({ message: 'Logged out successfully' });
 });
 
 module.exports = router;
