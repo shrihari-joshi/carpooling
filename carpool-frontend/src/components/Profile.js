@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api';
-import LeafletMap from './Map/LeafletMap.js';
-import { checkRouteMatch } from './Map/RideServices.js';
+import RideRouteMap from './RideRouteMap';
 
 const Profile = () => {
     const [user, setUser] = useState(null);
@@ -18,9 +17,36 @@ const Profile = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    const [route, setRoute] = useState(null);
-
     const navigate = useNavigate();
+
+    const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    // Function to get the current time in HH:MM format
+    const getCurrentTime = () => {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    };
+    const getMinTime = () => {
+        const selectedDate = new Date(date);
+        const today = new Date();
+
+        if (selectedDate.toDateString() === today.toDateString()) {
+            return getCurrentTime();
+        }
+        return '00:00';
+    };
+    useEffect(() => {
+        setDate(getTodayDate());
+        setTime(getCurrentTime());
+    }, []);
 
     // Fetch user profile and rides
     const fetchProfileAndRides = async () => {
@@ -39,7 +65,10 @@ const Profile = () => {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
             });
-            setRides(ridesResponse.data);
+            const now = new Date();
+            const availableRides = ridesResponse.data.filter(ride => new Date(ride.date) >= now);
+            setRides(availableRides);
+
         } catch (error) {
             console.error('Error fetching profile and rides:', error);
         }
@@ -102,12 +131,13 @@ const Profile = () => {
     };
 
 
+
     return (
         <div>
             <h2>Welcome, {user ? user.username : 'User  '}</h2>
             <button onClick={handleLogout}>Logout</button>
             <h3>Create a New Ride</h3>
-            <form onSubmit={handleCreateRide}>
+            <form onSubmit={handleCreateRide} >
                 <input
                     type="text"
                     value={startLocation}
@@ -127,12 +157,14 @@ const Profile = () => {
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                     required
+                    min={new Date().toISOString().split("T")[0]}
                 />
                 <input
                     type="time"
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
                     required
+                    min={getMinTime()}
                 />
                 <input
                     type="text"
@@ -163,10 +195,13 @@ const Profile = () => {
                     <option value="" disabled>Select Car Type</option>
                     <option value="hatchback">Hatchback</option>
                     <option value="sedan">Sedan</option>
-                    <option value="SUV">SUV</option>
+                    <option value="suv">SUV</option>
                 </select>
                 <button type="submit">Create Ride</button>
             </form>
+
+
+            <RideRouteMap startLocation={startLocation} endLocation={endLocation} />
             {successMessage && <p>{successMessage}</p>}
             {errorMessage && <p>{errorMessage}</p>}
             {rides.length > 0 ? (
@@ -174,8 +209,8 @@ const Profile = () => {
                     <h3>Your Rides</h3>
                     <ul>
                         {rides.map((ride) => (
-                            <li key={ride._id}>
-                                <Link to={`/rides/${ride._id}`}>
+                            <li key={ride._id} style={{ color: "whitesmoke" }}>
+                                <Link to={`/rides/${ride._id}`} style={{ color: "whitesmoke" }}>
                                     {ride.startLocation} to {ride.endLocation} on {new Date(ride.date).toLocaleDateString()}
                                 </Link>
                             </li>

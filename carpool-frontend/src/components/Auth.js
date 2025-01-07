@@ -76,12 +76,16 @@ const Auth = () => {
                     />
                 )}
                 {!isLogin && (
-                    <input
-                        type="text"
+                    <select
                         ref={genderRef}
-                        placeholder="Gender"
                         required
-                    />
+                        placeholder="Gender"
+                    >
+                        <option value="">Select Gender</option>
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                        <option value="O">O</option>
+                    </select>
                 )}
 
                 <button type="submit">{isLogin ? 'Login' : 'Register'}</button>

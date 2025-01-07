@@ -10,7 +10,7 @@ const rideSchema = new mongoose.Schema({
     endLocation: { type: String, required: true },
     date: { type: Date, required: true },
     carName: { type: String, required: true },
-    carNumber: { type: String, unique: true, required: true },
+    carNumber: { type: String, required: true },
     carColor: { type: String, required: true },
     carCapacity: { type: String, required: true }
 

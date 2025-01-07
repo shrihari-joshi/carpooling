@@ -47,10 +47,12 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Get ride details by ID
+// Get ride details by ID  
 router.get('/:id', async (req, res) => {
     try {
-        const ride = await Ride.findById(req.params.id).populate('driver', 'username email driverMobile passengers');
+        const ride = await Ride.findById(req.params.id)
+            .populate('driver', 'username email driverMobile passengers gender')
+            .populate('passengers', 'username gender');//here
         if (!ride) {
             return res.status(404).json({ message: 'Ride not found' });
         }

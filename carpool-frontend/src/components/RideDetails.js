@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import api from '../api'; // Make sure this points to your API configuration
+import api from '../api';
+import RideRouteMap from './RideRouteMap';
+import PassengerInput from './JoinRide';
 
 const RideDetails = () => {
     const { id } = useParams();
     const [ride, setRide] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+
 
     useEffect(() => {
         const fetchRideDetails = async () => {
@@ -27,6 +30,7 @@ const RideDetails = () => {
     }, [id]);
 
     const handleConfirmRide = async () => {
+
         try {
             const token = localStorage.getItem('token');
             const userResponse = await api.get('/auth/profile', {
@@ -37,16 +41,22 @@ const RideDetails = () => {
 
             const passengerId = userResponse.data._id;
 
-            if (passengerId == ride.driver._id) {
+            if (passengerId === ride.driver._id) {
                 setErrorMessage('Driver cannot join as a passenger');
                 return;
             }
 
-            if (ride.passengers.includes(passengerId)) {
-                setErrorMessage('User  is already a passenger on this ride')
+            if (ride.passengers.some(passenger => passenger._id.toString() === passengerId.toString())) {
+                setErrorMessage('User is already a passenger on this ride');
                 return;
             }
 
+            if ((ride.carCapacity === 'hatchback' && ride.passengers.length >= 4) ||
+                (ride.carCapacity === 'sedan' && ride.passengers.length >= 4) ||
+                (ride.carCapacity === 'suv' && ride.passengers.length >= 7)) {
+                setErrorMessage('The Ride is full, please choose another one!')
+                return;
+            }
             const updatedRide = {
                 passengers: [...ride.passengers, passengerId],
             };
@@ -79,20 +89,32 @@ const RideDetails = () => {
     return (
         <div>
             <h2>Ride Details</h2>
+
             <p><strong>Ride ID:</strong> {ride._id}</p>
-            <p><strong>Driver:</strong> {ride.driver.username}</p>
+            <p><strong>Driver:</strong> {ride.driver.username} ({ride.driver.gender})</p>
             <p><strong>Driver Email:</strong> {ride.driver.email}</p>
             <p><strong>Driver Mobile:</strong> {ride.driver.driverMobile}</p>
             <p><strong>Start Location:</strong> {ride.startLocation}</p>
             <p><strong>End Location:</strong> {ride.endLocation}</p>
             <p><strong>Date:</strong> {new Date(ride.date).toLocaleString()}</p>
-            <p><strong>Passengers:</strong> {ride.passengers.length > 0 ? ride.passengers : 'No passengers'}</p>
+
+            <p><strong>Passengers:</strong> {ride.passengers.length > 0 ? ride.passengers
+                .map(passenger => `${passenger.username} (${passenger.gender})`).join(', ')
+                : 'No passengers'}</p>
+            {/* auto reload */}
             <button onClick={handleConfirmRide}>Confirm Ride</button>
             <p><strong>Car Name:</strong> {ride.carName}</p>
             <p><strong>Car Number:</strong> {ride.carNumber}</p>
             <p><strong>Car Color:</strong> {ride.carColor}</p>
             <p><strong>Car Type:</strong> {ride.carCapacity}</p>
             {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+            <PassengerInput
+                driverStart={ride.startLocation}
+                driverEnd={ride.endLocation}
+                onJoinRide={handleConfirmRide}
+            />
+            <RideRouteMap startLocation={ride.startLocation} endLocation={ride.endLocation} />
+
         </div>
     );
 };
