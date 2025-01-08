@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import getCoordinates from './GetCoordinates ';
+import RideRouteMap from './RideRouteMap';
 
-const PassengerInput = ({ driverStart, driverEnd, onJoinRide }) => {
+const JoinRide = ({ driverStart, driverEnd, onJoinRide }) => {
     const [passengerStart, setPassengerStart] = useState('');
     const [passengerEnd, setPassengerEnd] = useState('');
+    const [passengerLocations, setPassengerLocations] = useState([]);
+
 
     const handleStartChange = (event) => {
         setPassengerStart(event.target.value);
@@ -79,6 +82,7 @@ const PassengerInput = ({ driverStart, driverEnd, onJoinRide }) => {
         if (canJoinRide(driverStartLat, driverStartLon, passengerStartLat, passengerStartLon) &&
             canJoinRide(driverEndLat, driverEndLon, passengerEndLat, passengerEndLon)) {
             onJoinRide();
+            setPassengerLocations([...passengerLocations, { startLocation: passengerStart, endLocation: passengerEnd }]);
             alert("You can join the ride.");
         } else {
             alert("You are too far from the ride.");
@@ -102,8 +106,14 @@ const PassengerInput = ({ driverStart, driverEnd, onJoinRide }) => {
                 onChange={handleEndChange}
             />
             <button onClick={handleJoinRide}>Join Ride</button>
+
+            <RideRouteMap
+                startLocation={driverStart}
+                endLocation={driverEnd}
+                passengerLocations={passengerLocations}
+            />
         </div>
     );
 };
 
-export default PassengerInput;
+export default JoinRide;

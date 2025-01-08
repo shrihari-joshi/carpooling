@@ -12,7 +12,14 @@ const rideSchema = new mongoose.Schema({
     carName: { type: String, required: true },
     carNumber: { type: String, required: true },
     carColor: { type: String, required: true },
-    carCapacity: { type: String, required: true }
+    carCapacity: { type: String, required: true },
+    passengerLocations: [
+        {
+            passenger: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+            startLocation: { type: String, required: true },
+            endLocation: { type: String, required: true },
+        }
+    ],
 
 });
 

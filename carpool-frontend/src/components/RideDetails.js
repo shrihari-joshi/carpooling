@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api';
-import RideRouteMap from './RideRouteMap';
-import PassengerInput from './JoinRide';
+import JoinRide from './JoinRide';
 
 const RideDetails = () => {
     const { id } = useParams();
@@ -108,12 +107,11 @@ const RideDetails = () => {
             <p><strong>Car Color:</strong> {ride.carColor}</p>
             <p><strong>Car Type:</strong> {ride.carCapacity}</p>
             {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-            <PassengerInput
+            <JoinRide
                 driverStart={ride.startLocation}
                 driverEnd={ride.endLocation}
                 onJoinRide={handleConfirmRide}
             />
-            <RideRouteMap startLocation={ride.startLocation} endLocation={ride.endLocation} />
 
         </div>
     );

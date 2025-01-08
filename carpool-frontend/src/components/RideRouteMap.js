@@ -12,84 +12,99 @@ const redIcon = new L.Icon({
     shadowSize: [41, 41],
 });
 
-const RideRouteMap = ({ startLocation, endLocation }) => {
+const RideRouteMap = ({ startLocation, endLocation, passengerLocations }) => {
     const mapRef = useRef(null);
-    const routingControlRef = useRef(null); // Store routing control reference
-
+    const routingControlRef = useRef(null);
     useEffect(() => {
         if (!mapRef.current) {
             mapRef.current = L.map('map').setView([20, 77], 6);
 
-            // Add OpenStreetMap tiles
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
             }).addTo(mapRef.current);
         }
 
-        if (startLocation && endLocation) {
-            const geocodeLocation = async (location) => {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${location}`);
-                const data = await response.json();
-                if (data.length > 0) {
-                    return L.latLng(data[0].lat, data[0].lon);
-                }
+        const geocodeLocation = async (location) => {
+            const url = `https://geocode.maps.co/search?q=${location}&api_key=677d1282b47ab200124575pqr8c7fdc`;
+
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.length > 0) {
+                return L.latLng(data[0].lat, data[0].lon);
+            } else {
                 throw new Error(`Could not find coordinates for ${location}`);
-            };
+            }
+        };
 
-            (async () => {
-                try {
+        (async () => {
+            try {
+                const waypoints = [];
+
+                // Geocode and add start location
+                if (startLocation) {
                     const startCoords = await geocodeLocation(startLocation);
-                    const endCoords = await geocodeLocation(endLocation);
-
-                    // Create markers for start and end locations
+                    waypoints.push(startCoords);
                     L.marker(startCoords, { icon: redIcon })
                         .addTo(mapRef.current)
-                        .bindPopup('Start Location')
-                        .openPopup();
-
+                        .bindPopup('Start Location');
+                }
+                // Geocode and add end location
+                if (endLocation) {
+                    const endCoords = await geocodeLocation(endLocation);
+                    waypoints.push(endCoords);
                     L.marker(endCoords, { icon: redIcon })
                         .addTo(mapRef.current)
-                        .bindPopup('End Location')
-                        .openPopup();
-
-                    // Initialize routing control if it doesn't exist
-                    if (!routingControlRef.current) {
-                        routingControlRef.current = L.Routing.control({
-                            waypoints: [startCoords, endCoords],
-                            routeWhileDragging: false,
-                            showAlternatives: false,
-                            show: false,
-                            fitSelectedRoutes: false,
-                            createMarker: () => null, // Disable default markers
-                            styles: [
-                                {
-                                    color: 'blue', // Set the color of the route line to blue
-                                    opacity: 0.7,
-                                    weight: 5, // Change the thickness of the route line
-                                },
-                            ],
-                        }).addTo(mapRef.current);
-                    } else {
-                        // Update waypoints if routing control already exists
-                        routingControlRef.current.setWaypoints([startCoords, endCoords]);
-                    }
-
-                    // Adjust map view to fit the route
-                    mapRef.current.fitBounds(L.latLngBounds([startCoords, endCoords]));
-                } catch (error) {
-                    console.error(error);
+                        .bindPopup('End Location');
                 }
-            })();
-        }
+
+                // Geocode and add passenger locations
+                if (passengerLocations && passengerLocations.length > 0) {
+                    for (const loc of passengerLocations) {
+                        const passengerStartCoords = await geocodeLocation(loc.startLocation);
+                        const passengerEndCoords = await geocodeLocation(loc.endLocation);
+                        waypoints.push(passengerStartCoords, passengerEndCoords);
+                        L.marker(passengerStartCoords, { icon: redIcon })
+                            .addTo(mapRef.current)
+                            .bindPopup('Passenger Start Location');
+                        L.marker(passengerEndCoords, { icon: redIcon })
+                            .addTo(mapRef.current)
+                            .bindPopup('Passenger End Location');
+                    }
+                }
+
+
+
+                // Update or create the routing control
+                if (!routingControlRef.current) {
+                    routingControlRef.current = L.Routing.control({
+                        waypoints: waypoints,
+                        routeWhileDragging: false,
+                        showAlternatives: false,
+                        createMarker: () => null,
+                        styles: [
+                            {
+                                color: 'blue',
+                                opacity: 0.7,
+                                weight: 5,
+                            },
+                        ],
+                    }).addTo(mapRef.current);
+                } else {
+                    routingControlRef.current.setWaypoints(waypoints);
+                }
+                mapRef.current.fitBounds(L.latLngBounds(waypoints));
+            } catch (error) {
+                console.error(error);
+            }
+        })();
 
         return () => {
             if (routingControlRef.current) {
                 mapRef.current.removeControl(routingControlRef.current);
-                routingControlRef.current = null; // Reset routing control reference
+                routingControlRef.current = null;
             }
         };
-
-    }, [startLocation, endLocation]);
+    }, [startLocation, endLocation, passengerLocations]);
 
     return <div id="map" style={{ height: '400px', width: '100%' }}></div>;
 };
