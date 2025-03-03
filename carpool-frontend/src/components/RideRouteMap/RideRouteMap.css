@@ -1,0 +1,9 @@
+.leaflet-routing-container {
+    left: 10px !important;
+    top: -10px !important;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 1rem;
+    width: 10vw;
+    height: 65vh;
+    visibility: hidden;
+}

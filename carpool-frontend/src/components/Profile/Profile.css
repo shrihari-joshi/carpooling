@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+.profile-container {
+    background: #fff;
+    padding-left: 20px;
+    border-radius: 8px;
+    display: flex;
+    gap: 20px;
+    overflow-y: scroll;
+    height: 100vh;
+}
+
+.profile-left {
+    flex: 0.5;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    position: relative;
+    top: 12vh;
+}
+
+.profile-right {
+    flex: 1;
+    position: relative;
+    top: 12vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Header & Button Layout */
+.form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+
+.ride-heading {
+    font-size: 1.7rem;
+    font-weight: 600;
+    margin-top: -1rem;
+}
+
+.submit-button {
+    width: 9rem;
+    padding: 0.5rem 1rem;
+    background: #fca311;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-weight: 600;
+}
+
+.submit-button:hover {
+    background: #fca311;
+}
+
+/* Form Layout */
+.ride-form {
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+    top: -10vh;
+    width: 70%;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.ride-form input,
+.ride-form select {
+    flex: 1;
+    min-width: 48%;
+    font-family: 'Poppins', sans-serif;
+    padding: 10px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* Logout Button at Bottom Right */
+.logout-button {
+    position: absolute;
+    bottom: 1rem;
+    right: 7.5rem;
+    width: 6rem;
+    padding: 0.5rem 1rem;
+    background: #fca311;
+    color: white;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    border: none;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-weight: 600;
+}
+
+.logout-button:hover {
+    background: #fca311;
+}
+
+/* Map & Ride Section */
+.map-container {
+    width: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+.rides-section {
+    width: 90%;
+    padding: 1.5rem;
+    border-radius: 1rem;
+}
+
+.rides-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.rides-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    background-color: #fca311;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.ride-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: #f9f9f9;
+    margin: 5px 0;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+    transition: background 0.3s ease;
+}
+
+.ride-row:hover {
+    background: #e0e0e0;
+}
+
+.rides-header span,
+.ride-row span {
+    flex: 1;
+    text-align: center;
+}
+
+/* Fixed Width for Columns */
+.rides-header span:nth-child(1),
+.ride-row span:nth-child(1) {
+    flex-basis: 30%;
+    /* Start Location */
+}
+
+.rides-header span:nth-child(2),
+.ride-row span:nth-child(2) {
+    flex-basis: 30%;
+    /* End Location */
+}
+
+.rides-header span:nth-child(3),
+.ride-row span:nth-child(3) {
+    flex-basis: 40%;
+    /* Date & Time */
+}

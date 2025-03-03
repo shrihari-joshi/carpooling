@@ -97,4 +97,90 @@ router.put('/:id', authMiddleware, async (req, res) => {
     }
 });
 
+
+router.put('/join-ride/:id', authMiddleware, async (req, res) => {
+    const { id: rideId } = req.params;
+
+    const { startLocation, endLocation } = req.body;
+
+    try {
+        const ride = await Ride.findById(rideId);
+        if (!ride) {
+            return res.status(404).json({ message: 'Ride not found' });
+        }
+
+        ride.passengerLocations.push({
+            passenger: req.user.id,
+            startLocation: startLocation || ride.startLocation,
+            endLocation: endLocation || ride.endLocation,
+        });
+
+        await ride.save();
+        res.status(200).json({ message: 'Joined the ride successfully' });
+    } catch (error) {
+        console.error('Error joining ride:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+//cancel a ride by driver
+router.delete('/delete/:id', authMiddleware, async (req, res) => {
+    const { id: rideId } = req.params;
+
+    try {
+        const ride = await Ride.findById(rideId);
+
+        if (!ride) {
+            return res.status(404).json({ message: 'Ride not found' });
+        }
+
+        // Check if the ride has any passengers
+        if (ride.passengers.length > 0) {
+            return res.status(400).json({ message: 'Cannot cancel a ride with passengers' });
+        }
+
+        await Ride.findByIdAndDelete(rideId);
+        res.status(200).json({ message: 'Ride cancelled successfully' });
+    } catch (error) {
+        console.error('Error cancelling ride:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+//cancel a ride by passenger
+router.put('/delete-passenger/:id', authMiddleware, async (req, res) => {
+    const { passengerId } = req.body;
+
+    try {
+        const ride = await Ride.findById(req.params.id);
+
+        if (!ride) {
+            return res.status(404).json({ message: 'Ride not found' });
+        }
+
+        // Check if the user is a passenger in this ride
+        if (!ride.passengers.includes(passengerId)) {
+            return res.status(400).json({ message: 'User is not a passenger in this ride' });
+        }
+
+        // Remove the passenger from the passengers array
+        ride.passengers = ride.passengers.filter(
+            (id) => id.toString() !== passengerId.toString()
+        );
+
+        ride.passengerCount = ride.passengers.length; // Update passenger count
+
+        await ride.save();
+        res.status(200).json({ message: 'Passenger removed from the ride successfully' });
+    } catch (error) {
+        console.error('Error removing passenger from the ride:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
+
+
+
+
 module.exports = router;

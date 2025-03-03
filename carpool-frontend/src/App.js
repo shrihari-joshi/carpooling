@@ -1,15 +1,19 @@
 import React from 'react';
+import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Auth from './components/Auth';
-import Profile from './components/Profile';
-import RideDetails from './components/RideDetails';
+import Auth from './components/Auth/Auth.js';
+import Profile from './components/Profile/Profile.js';
+import RideDetails from './components/RideDetails/RideDetails.js';
+import Navbar from './components/Navbar/Navbar.js';
+import DirectionsPage from './components/DirectionsPage/DirectionsPage.js';
 
 const App = () => {
   return (
     <Router>
-      <div style={{ backgroundColor: "#282c34", color: "whitesmoke", height: "100vh", width: "100vw" }}>
-        <h1>Carpooling App</h1>
+      <div className='main'>
+        <Navbar />
         <Routes>
+          <Route path="/directions/:id" element={<DirectionsPage />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/profile" component={Profile} />
           <Route path="/rides/:id" element={<RideDetails />} />

@@ -1,7 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet/dist/leaflet.css';
+import api from '../../api';
+import './RideRouteMap.css';
 
 const redIcon = new L.Icon({
     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
@@ -12,9 +14,28 @@ const redIcon = new L.Icon({
     shadowSize: [41, 41],
 });
 
-const RideRouteMap = ({ startLocation, endLocation, passengerLocations }) => {
+const RideRouteMap = ({ startLocation, endLocation, rideId }) => {
     const mapRef = useRef(null);
     const routingControlRef = useRef(null);
+    const [passengerLocations, setPassengerLocations] = useState([]);
+
+    useEffect(() => {
+        const fetchPassengerLocations = async () => {
+            try {
+                const response = await api.get(`/rides/${rideId}`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                });
+                setPassengerLocations(response.data.passengerLocations);
+            } catch (error) {
+                console.error('Error fetching passenger locations:', error);
+            }
+        };
+
+        if (rideId) {
+            fetchPassengerLocations();
+        }
+    }, [rideId]);
+
     useEffect(() => {
         if (!mapRef.current) {
             mapRef.current = L.map('map').setView([20, 77], 6);
@@ -26,7 +47,6 @@ const RideRouteMap = ({ startLocation, endLocation, passengerLocations }) => {
 
         const geocodeLocation = async (location) => {
             const url = `https://geocode.maps.co/search?q=${location}&api_key=677d1282b47ab200124575pqr8c7fdc`;
-
             const response = await fetch(url);
             const data = await response.json();
             if (data.length > 0) {
@@ -40,7 +60,6 @@ const RideRouteMap = ({ startLocation, endLocation, passengerLocations }) => {
             try {
                 const waypoints = [];
 
-                // Geocode and add start location
                 if (startLocation) {
                     const startCoords = await geocodeLocation(startLocation);
                     waypoints.push(startCoords);
@@ -48,7 +67,7 @@ const RideRouteMap = ({ startLocation, endLocation, passengerLocations }) => {
                         .addTo(mapRef.current)
                         .bindPopup('Start Location');
                 }
-                // Geocode and add end location
+
                 if (endLocation) {
                     const endCoords = await geocodeLocation(endLocation);
                     waypoints.push(endCoords);
@@ -57,42 +76,26 @@ const RideRouteMap = ({ startLocation, endLocation, passengerLocations }) => {
                         .bindPopup('End Location');
                 }
 
-                // Geocode and add passenger locations
-                if (passengerLocations && passengerLocations.length > 0) {
-                    for (const loc of passengerLocations) {
-                        const passengerStartCoords = await geocodeLocation(loc.startLocation);
-                        const passengerEndCoords = await geocodeLocation(loc.endLocation);
-                        waypoints.push(passengerStartCoords, passengerEndCoords);
-                        L.marker(passengerStartCoords, { icon: redIcon })
-                            .addTo(mapRef.current)
-                            .bindPopup('Passenger Start Location');
-                        L.marker(passengerEndCoords, { icon: redIcon })
-                            .addTo(mapRef.current)
-                            .bindPopup('Passenger End Location');
-                    }
-                }
-
-
-
-                // Update or create the routing control
-                if (!routingControlRef.current) {
+                if (routingControlRef.current) {
+                    routingControlRef.current.setWaypoints(waypoints);
+                } else {
                     routingControlRef.current = L.Routing.control({
-                        waypoints: waypoints,
+                        waypoints,
                         routeWhileDragging: false,
                         showAlternatives: false,
                         createMarker: () => null,
-                        styles: [
-                            {
-                                color: 'blue',
-                                opacity: 0.7,
-                                weight: 5,
-                            },
-                        ],
+                        router: new L.Routing.OSRMv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' }),
+                        plan: L.Routing.plan(waypoints, {
+                            createMarker: () => null,
+                            show: false, // Hide the panel
+                        }),
+                        styles: [{ color: 'blue', opacity: 0.9, weight: 5 }],
                     }).addTo(mapRef.current);
-                } else {
-                    routingControlRef.current.setWaypoints(waypoints);
                 }
-                mapRef.current.fitBounds(L.latLngBounds(waypoints));
+
+                if (waypoints.length > 0) {
+                    mapRef.current.fitBounds(L.latLngBounds(waypoints));
+                }
             } catch (error) {
                 console.error(error);
             }
@@ -100,13 +103,13 @@ const RideRouteMap = ({ startLocation, endLocation, passengerLocations }) => {
 
         return () => {
             if (routingControlRef.current) {
-                mapRef.current.removeControl(routingControlRef.current);
-                routingControlRef.current = null;
+                routingControlRef.current.getPlan().setWaypoints([]); // Clear waypoints
+                routingControlRef.current = null; // Reset routing control reference
             }
         };
     }, [startLocation, endLocation, passengerLocations]);
 
-    return <div id="map" style={{ height: '400px', width: '100%' }}></div>;
+    return <div id="map" style={{ height: '400px', width: '80%', zIndex: 2, borderRadius: '1rem' }}></div>;
 };
 
 export default RideRouteMap;
