@@ -1,8 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 
-const API_KEY = 'AIzaSyBqB0Cx88L4GgWEV6xl98Yx5eeV_5tG_3o'; // Ensure you have this in your .env.local file
-
+const API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 export const getDirections = async (driverStart, driverEnd, passengerLocations) => {
