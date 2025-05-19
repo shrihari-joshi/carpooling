@@ -17,6 +17,7 @@ const Navbar = () => {
     // Toggle dark mode
     const toggleTheme = () => {
         setIsDarkMode((prevMode) => !prevMode);
+        localStorage.setItem("darkMode", !isDarkMode);
         document.body.classList.toggle("dark-mode");
     };
 
@@ -27,13 +28,23 @@ const Navbar = () => {
         navigate("/"); // Redirect to login page
     };
 
+    const handleProfileClick = () => {
+        const isLoggedIn = !!localStorage.getItem('token'); // or use context/redux
+
+        if (isLoggedIn) {
+            navigate('/profile');
+        } else {
+            navigate('/');
+        }
+    };
+
     return (
         <nav className="navbar">
             <h1 className="logo">Wheel Mates</h1>
             <div className="nav-links">
-                <Link to="/profile" className="nav-item">
+                <div onClick={handleProfileClick} className="nav-item" style={{ cursor: 'pointer' }}>
                     <User size={20} /> Profile
-                </Link>
+                </div>
                 <Link to="/settings" className="nav-item">
                     <Settings size={20} /> Settings
                 </Link>

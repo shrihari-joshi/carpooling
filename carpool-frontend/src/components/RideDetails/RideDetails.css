@@ -14,26 +14,24 @@
 .ride-details-title {
     font-family: 'Poppins', sans-serif;
     color: #fca311;
-    font-size: 1.3rem;
+    font-size: 2rem;
     font-weight: 600;
-    margin-top: -3rem;
-    margin-right: 2rem;
-    border: 2px solid #fca311;
-    border-radius: 0.3rem;
-    padding: 0.5rem;
+    margin-top: -6rem;
+    margin-left: -31rem;
+    margin-bottom: -1rem;
 }
 
 .get-direc-button {
-    font-family: 'Poppins', sans-serif;
-    color: white;
-    background-color: #fca311;
-    font-size: 1.3rem;
-    border: 2px solid #fca311;
-    border-radius: 0.3rem;
-    padding: 0.5rem;
-    font-weight: 600;
-    margin-top: -4.3rem;
+    padding: 0.8rem 1.1rem;
+    border: none;
+    margin-left: -1.3rem;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
     cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    background: #fca311;
+    color: white;
     transition: all 0.3s ease-in-out;
 }
 
@@ -72,6 +70,7 @@
     padding-bottom: 1rem;
     margin-bottom: 1rem;
     padding: 1rem;
+    background: var(--card-bg-color);
 }
 
 .ride-column {
@@ -85,7 +84,7 @@
 
 /* Passengers Section */
 .passengers-section {
-    background: #ffffff;
+    background: var(--card-bg-color);
     padding: 1rem;
     border-radius: 0.5rem;
     box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
@@ -103,8 +102,9 @@
 .cancel-button-driver {
     padding: 0.8rem 1.1rem;
     border: none;
+    margin-right: 1.3rem;
     border-radius: 0.5rem;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     cursor: pointer;
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
@@ -123,7 +123,7 @@
 
 /* Car Details */
 .car-details {
-    background: #ffffff;
+    background: var(--card-bg-color);
     padding: 1rem;
     border-radius: 0.5rem;
     box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);

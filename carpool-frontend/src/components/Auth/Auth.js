@@ -12,7 +12,6 @@ const Auth = () => {
     const genderRef = useRef();
     const [isLogin, setIsLogin] = useState(true);
     const navigate = useNavigate();
-    const titleRef = useRef(null);
 
     useEffect(() => {
         gsap.to(".wheel-mates span", {

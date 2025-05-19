@@ -135,9 +135,7 @@ const Profile = () => {
                     </select>
 
 
-                    {/* Logout Button at Bottom Right */}
                     <div>
-                        {/* <button className="logout-button" onClick={handleLogout}>Logout</button> */}
                         <button type="submit" className="submit-button">Create Ride</button>
                     </div>
                 </form>

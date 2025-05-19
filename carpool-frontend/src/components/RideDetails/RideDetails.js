@@ -3,8 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../api';
 import JoinRide from '../JoinRide/JoinRide.js';
 import './RideDetails.css';
-import { getDirections } from '../geminiService.js';
-import DirectionsDisplay from '../DirectionsDisplay.js'; // Adjust the path
 
 const RideDetails = () => {
     const { id } = useParams();
@@ -13,11 +11,7 @@ const RideDetails = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const navigate = useNavigate();
     let passengerId;
-    const [geminiDirections, setGeminiDirections] = useState('');
-    const [geminiLoading, setGeminiLoading] = useState(false);
-    const [geminiError, setGeminiError] = useState(null);
     const [isDriver, setIsDriver] = useState(false);
-    const [loading, setLoading] = useState(false);
 
 
     useEffect(() => {
@@ -48,33 +42,6 @@ const RideDetails = () => {
 
         fetchRideDetails();
     }, [id]);
-
-    useEffect(() => {
-        const fetchGeminiDirections = async () => {
-
-            if (ride && ride.passengers && ride.passengers.length > 0) {
-                setGeminiLoading(true);
-                setGeminiError(null);
-                try {
-
-                    const passengerLocations = ride.passengers.map(passenger => ({
-                        pickup: passenger.pickupLocation,
-                        dropoff: passenger.dropoffLocation,
-                    }));
-
-                    const directions = await getDirections(ride.startLocation, ride.endLocation, passengerLocations);
-                    setGeminiDirections(directions);
-                } catch (err) {
-                    console.error('Error fetching Gemini directions:', err);
-                    setGeminiError(err.message || 'Failed to fetch directions.');
-                } finally {
-                    setGeminiLoading(false);
-                }
-            }
-        };
-
-        fetchGeminiDirections();
-    }, [ride]);
 
     const handleConfirmRide = async () => {
         try {
@@ -180,7 +147,23 @@ const RideDetails = () => {
 
 
     const handleGetDirections = () => {
-        navigate(`/directions/${ride._id}`);
+        const seen = new Set();
+        const waypointsArray = [];
+
+        ride.passengerLocations.flatMap(loc => [loc.startLocation, loc.endLocation])
+            .forEach(location => {
+                if (!seen.has(location) && location !== ride.startLocation && location !== ride.endLocation) {
+                    seen.add(location);
+                    waypointsArray.push(location);
+                }
+            });
+
+        const waypoints = waypointsArray.map(encodeURIComponent).join('|');
+
+        console.log(waypoints);
+
+        const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(ride.startLocation)}&destination=${encodeURIComponent(ride.endLocation)}&waypoints=${waypoints}&travelmode=driving`;
+        window.open(url, '_blank');
     };
 
     return (
@@ -189,7 +172,6 @@ const RideDetails = () => {
                 <div className="ride-left">
                     <div className='ride-left-header'>
                         <p className='ride-details-title'>Ride Details</p>
-                        <button className='get-direc-button' onClick={handleGetDirections}> Get Directions</button>
                     </div>
                     <div className="ride-info">
                         <div className="ride-column">
@@ -211,12 +193,15 @@ const RideDetails = () => {
                             : 'No passengers'}</p>
                     </div>
 
-                    {isDriver && (
-                        <div className="buttons-section">
-                            <button className="confirm-button-driver" onClick={handleConfirmRide}>Confirm Ride</button>
-                            <button className="cancel-button-driver" onClick={handleCancelRide}>Cancel Ride</button>
-                        </div>
-                    )}
+                    <div className="buttons-section">
+                        {isDriver && (
+                            <div>
+                                <button className="confirm-button-driver" onClick={handleConfirmRide}>Confirm Ride</button>
+                                <button className="cancel-button-driver" onClick={handleCancelRide}>Cancel Ride</button>
+                            </div>
+                        )}
+                        <button className='get-direc-button' onClick={handleGetDirections}> Get Directions</button>
+                    </div>
 
 
                     <div className="car-details">
@@ -237,14 +222,6 @@ const RideDetails = () => {
                     />
 
                 </div>
-                {/* <div className="main-direction-compo">
-
-                    <DirectionsDisplay
-                        geminiLoading={geminiLoading}
-                        geminiError={geminiError}
-                        geminiDirections={geminiDirections}
-                    />
-                </div> */}
             </div>
         </div>
     );
