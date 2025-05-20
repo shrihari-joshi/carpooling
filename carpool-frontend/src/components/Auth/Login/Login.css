@@ -11,7 +11,7 @@ body {
 
 .auth-container {
     width: 25vw;
-    min-height: 60vh;
+    min-height: 50vh;
     border-radius: 1rem;
     padding: 2rem;
     position: absolute;
@@ -85,29 +85,9 @@ select:focus {
     width: 100%;
 }
 
-.switch-btn {
-    background: transparent;
-    color: #fca311;
-    margin-top: 0.5rem;
-    border: 1px solid #fca311;
-    padding: 0.8rem;
-    font-size: 1.2rem;
-    font-weight: 600;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    width: 100%;
-}
-
 .login-btn:hover {
     transform: scale(1.05);
     background-color: #fca311;
-}
-
-.switch-btn:hover {
-    background-color: #fca311;
-    color: white;
-    transform: scale(1.05);
 }
 
 .pixel-bg {
@@ -119,6 +99,32 @@ select:focus {
     pointer-events: none;
 }
 
+.signup-link {
+    color: #fca311;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    cursor: pointer;
+    border: 1px solid #fca311;
+    border-radius: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+
+.actuallink {
+    color: #fca311;
+    margin-left: -0.8rem;
+    margin-top: 0.5rem;
+    padding: 0.8rem;
+
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+}
 
 @keyframes fadeOut {
     to {
